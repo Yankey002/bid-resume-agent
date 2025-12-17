@@ -1,0 +1,48 @@
+[tool.black]
+# 行长度
+line-length = 88
+
+# 排除的文件和目录
+exclude = '''
+/(\.
+    |venv
+    |env
+    |\.venv
+    |__pycache__
+    |build
+    |dist
+)/
+'''
+
+[tool.isort]
+# 与black兼容的配置
+profile = "black"
+
+# 行长度
+line_length = 88
+
+# 排除的文件和目录
+exclude = [".git", "venv", "env", ".venv", "__pycache__", "build", "dist"]
+
+# 导入分组
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+# 合并相邻的导入
+combine_as_imports = true
+combine_star_imports = true
+
+# 排序方式
+case_sensitive = false
+
+[project]
+name = "ai-dev-practice"
+description = "AI开发练习项目"
+version = "0.1.0"
+authors = [
+    { name = "Developer", email = "developer@example.com" }
+]
+
+[project.requires-python] >= "3.8"
+
+[project.dependencies]
+python-dotenv = "^1.0.0"
