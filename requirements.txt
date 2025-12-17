@@ -1,20 +1,7 @@
-# 代码风格检查
-flake8
+# 大模型接入项目依赖
 
-# 代码格式化
-black
+# OpenAI Python客户端，用于调用OpenAI兼容的API
+openai>=1.0.0
 
-# 导入排序
-isort
-
-# 类型检查
-mypy
-
-# 测试框架
-pytest
-
-# 预提交钩子
-pre-commit
-
-# 环境变量管理
-python-dotenv
+# Python类型提示库（可选，用于更好的类型检查）
+typing_extensions>=4.0.0
