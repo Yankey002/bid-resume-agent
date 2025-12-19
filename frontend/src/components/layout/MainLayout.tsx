@@ -1,38 +1,35 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Button, theme, Tooltip } from 'antd';
+import { Layout, Menu, theme } from 'antd';
 import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
   FileTextOutlined,
   AppstoreOutlined,
   CheckCircleOutlined,
   HistoryOutlined,
   SettingOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { AppHeader } from './Header';
+import { ImportResumeButton } from './Header/ImportResumeButton';
+import { ImportTemplateButton } from './Header/ImportTemplateButton';
 import styles from './MainLayout.module.scss';
 
-const { Header, Sider, Content } = Layout;
+const { Sider, Content } = Layout;
 
 const MainLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
   const navigate = useNavigate();
   const location = useLocation();
 
   const menuItems = [
     {
-      key: '/templates',
-      icon: <FileTextOutlined />,
-      label: '模板中心',
-    },
-    {
       key: '/resumes',
       icon: <AppstoreOutlined />,
       label: '简历库',
+    },
+    {
+      key: '/templates',
+      icon: <FileTextOutlined />,
+      label: '模板中心',
     },
     {
       key: '/review',
@@ -51,47 +48,57 @@ const MainLayout: React.FC = () => {
     },
   ];
 
+  // 获取当前页面标题
+  const getCurrentPageTitle = () => {
+    const currentItem = menuItems.find(item => item.key === location.pathname);
+    return currentItem ? currentItem.label : 'Resume Pilot';
+  };
+
+  // 获取当前页面操作按钮
+  const getCurrentPageAction = () => {
+    switch (location.pathname) {
+      case '/resumes':
+        return <ImportResumeButton />;
+      case '/templates':
+        return <ImportTemplateButton />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Layout className={styles.layout}>
-      <Sider trigger={null} collapsible collapsed={collapsed} theme="light" className={styles.sider}>
+      <Sider trigger={null} collapsible collapsed={collapsed} theme="dark" className={styles.sider} width={240}>
         <div className={styles.logo}>
-          {collapsed ? 'RP' : 'Resume Pilot'}
+          <div className={styles.logoIconWrapper} style={{ marginRight: collapsed ? 0 : 16 }}>
+            <img src="/vite.svg" alt="Logo" style={{ height: 32 }} />
+          </div>
+          {!collapsed && 'Resume Pilot'}
         </div>
         <Menu
-          theme="light"
+          theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}
           onClick={({ key }) => navigate(key)}
+          style={{ background: 'transparent', borderRight: 0 }}
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} className={styles.header}>
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: '16px',
-              width: 64,
-              height: 64,
-            }}
-          />
-          <div className={styles.headerRight}>
-             {/* 占位：搜索框、通知、用户头像 */}
-             <Tooltip title="用户设置">
-               <Button icon={<UserOutlined />} shape="circle" />
-             </Tooltip>
-          </div>
-        </Header>
+        <AppHeader
+          collapsed={collapsed}
+          onCollapse={() => setCollapsed(!collapsed)}
+          title={getCurrentPageTitle()}
+          action={getCurrentPageAction()}
+        />
         <Content
           style={{
             margin: '24px 16px',
             padding: 24,
             minHeight: 280,
-            background: colorBgContainer,
+            background: 'transparent', // Make transparent to show global gradient
             borderRadius: 8,
-            overflow: 'auto',
+            overflow: 'visible', // Allow shadows to overflow
           }}
         >
           <Outlet />

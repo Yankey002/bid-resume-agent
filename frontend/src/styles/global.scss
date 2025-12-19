@@ -7,12 +7,14 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-    'Noto Color Emoji';
+  font-family: $font-family-base;
   background-color: $bg-color;
+  background-image: $tech-bg-gradient;
+  background-attachment: fixed; /* 视差效果 */
+  background-size: cover;
   color: $text-color;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {
@@ -21,20 +23,72 @@ body {
   flex-direction: column;
 }
 
+// 覆盖 Ant Design 全局样式以实现"微玻璃拟态"
+.ant-layout {
+  background: transparent !important; // 让 body 背景透出来
+}
+
 .page-container {
   padding: $spacing-lg;
-  background: $bg-color;
+  // background: transparent; // 移除之前的背景色
   min-height: 100%;
+  animation: fadeIn 0.5s ease-out;
+}
+
+// 全局卡片样式升级
+.ant-card {
+  background: $card-bg !important;
+  backdrop-filter: blur(12px) !important;
+  border: $card-border !important;
+  border-radius: 12px !important; // 更大的圆角
+  box-shadow: $card-shadow !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $card-hover-shadow !important;
+    border-color: rgba(118, 75, 162, 0.3) !important; // 悬浮时边框变紫
+  }
+
+  .ant-card-head {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03) !important;
+    font-weight: 600;
+  }
+}
+
+// 按钮光效增强
+.ant-btn-primary {
+  border: none !important;
+  box-shadow: 0 4px 14px 0 rgba(118, 75, 162, 0.39) !important;
+  transition: all 0.3s ease !important;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(118, 75, 162, 0.23) !important;
+    filter: brightness(1.1);
+  }
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(118, 75, 162, 0.3) !important;
+  }
+}
+
+// 标题样式回归 - 高级深色，提升可读性
+h1, h2, .ant-typography-h1, .ant-typography-h2 {
+  color: #1f1f1f; // 接近纯黑的深灰，提供最佳对比度
+  font-weight: 600;
+  letter-spacing: -0.5px; // 紧凑一点更现代
+  margin-bottom: 24px !important;
+}
+
+// 动画
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .card {
-  background: $white;
-  border-radius: 8px;
-  padding: $spacing-lg;
-  box-shadow: $shadow-sm;
-  transition: box-shadow 0.3s;
-
-  &:hover {
-    box-shadow: $shadow-md;
-  }
+  // 保留旧类名兼容，但也应用新样式
+  @extend .ant-card;
 }

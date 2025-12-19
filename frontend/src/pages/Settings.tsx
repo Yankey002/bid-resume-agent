@@ -4,9 +4,6 @@ import { Card, Form, Switch, Divider } from 'antd';
 const Settings: React.FC = () => {
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <h2>设置</h2>
-      </div>
       <Card title="通用设置">
         <Form layout="vertical">
           <Form.Item label="自动提取模式">

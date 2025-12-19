@@ -16,24 +16,82 @@
   justify-content: center;
   font-size: 18px;
   font-weight: bold;
-  color: $primary-color;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  color: #ffffff; // High contrast white text
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05); // Subtle separator
   white-space: nowrap;
   overflow: hidden;
   transition: all 0.2s;
+  letter-spacing: 0.5px; // Slightly increased spacing for readability
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); // Subtle shadow for depth
 }
 
-.header {
+.logoIconWrapper {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  justify-content: center;
+
+  /* Tech Halo Effect */
+  position: relative;
   z-index: 1;
+  cursor: pointer;
+  border-radius: 50%; /* Make the halo circular */
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -4px; /* Extend slightly beyond the icon */
+    z-index: -1;
+    background: radial-gradient(circle, rgba(79, 172, 254, 0.2) 0%, rgba(118, 75, 162, 0.1) 70%);
+    box-shadow: 0 0 4px rgba(118, 75, 162, 0.5);
+    opacity: 0.6;
+    border-radius: 50%;
+    animation: breathing 3s ease-in-out infinite alternate;
+    transition: all 0.3s ease;
+    will-change: opacity, box-shadow;
+  }
+
+  /* Interaction */
+  &:hover::before {
+    filter: brightness(1.2);
+    opacity: 0.8;
+    box-shadow: 0 0 8px rgba(79, 172, 254, 0.6);
+  }
+
+  &:active::before {
+    animation: pulse 0.2s ease-out forwards;
+  }
+
+  img {
+    display: block; /* Remove bottom space */
+    position: relative; /* Ensure image is above halo */
+    z-index: 2;
+  }
 }
 
-.headerRight {
-  padding-right: 24px;
-  display: flex;
-  gap: 16px;
-  align-items: center;
+@keyframes breathing {
+  0% {
+    opacity: 0.6;
+    box-shadow: 0 0 2px rgba(118, 75, 162, 0.5);
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 12px rgba(79, 172, 254, 0.6);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

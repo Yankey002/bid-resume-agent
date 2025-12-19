@@ -5,9 +5,9 @@ const ResumeLibrary: React.FC = () => {
   const columns = [
     { title: '候选人', dataIndex: 'name', key: 'name' },
     { title: '导入批次', dataIndex: 'batch', key: 'batch' },
-    { 
-      title: '状态', 
-      dataIndex: 'status', 
+    {
+      title: '状态',
+      dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
         <Tag color={status === '已优化' ? 'green' : 'blue'}>{status}</Tag>
@@ -27,9 +27,6 @@ const ResumeLibrary: React.FC = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <h2>简历库</h2>
-      </div>
       <Card>
         <Table columns={columns} dataSource={[]} />
       </Card>

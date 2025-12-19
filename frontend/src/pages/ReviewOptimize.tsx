@@ -4,9 +4,6 @@ import { Card, Steps, Button, Result } from 'antd';
 const ReviewOptimize: React.FC = () => {
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <h2>审核优化</h2>
-      </div>
       <Card>
         <Steps
           current={0}

@@ -1,0 +1,12 @@
+{
+  "name": "resume-pilot-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:client": "pnpm -C frontend dev",
+    "build:client": "pnpm -C frontend build",
+    "preview:client": "pnpm -C frontend preview",
+    "install:client": "pnpm -C frontend install"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
