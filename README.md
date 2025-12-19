@@ -51,9 +51,11 @@ cd ai-dev-practice
 
 ### 2. 后端设置
 
-创建虚拟环境并安装依赖：
+进入后端目录，创建虚拟环境并安装依赖：
 
 ```bash
+cd backend
+
 # Windows
 python -m venv venv
 .\venv\Scripts\activate
@@ -80,10 +82,10 @@ cp .env.example .env
 python -m resume_parser.docx_parser --help
 
 # 解析单个简历并输出 JSON
-python -m resume_parser.docx_parser input/resume.docx -o output/resume.json --pretty
+python -m resume_parser.docx_parser ../input/resume.docx -o ../output/resume.json --pretty
 
 # 启用 LLM 生成语义质检报告
-python -m resume_parser.docx_parser input/resume.docx --llm-work-experience-report --human-report-output report.txt
+python -m resume_parser.docx_parser ../input/resume.docx --llm-work-experience-report --human-report-output report.txt
 ```
 
 ### 3. 前端设置
@@ -111,8 +113,10 @@ npm run dev
 
 ### 代码规范
 
-**Python**:
+**Python** (进入 backend 目录):
 ```bash
+cd backend
+
 # 格式化代码
 black .
 isort .

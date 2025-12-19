@@ -47,8 +47,54 @@ jobs:
           path: frontend/dist
           if-no-files-found: error
 
+  ci_python:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/pyproject.toml
+            backend/mypy.ini
+            backend/.flake8
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install black==23.9.1 isort==5.12.0 flake8==6.1.0 flake8-docstrings mypy==1.5.1 pytest types-dataclasses types-python-dotenv
+
+      - name: Black
+        run: black --check .
+
+      - name: Isort
+        run: isort --check-only .
+
+      - name: Flake8
+        run: flake8 .
+
+      - name: Mypy
+        run: mypy .
+
+      - name: Pytest
+        run: |
+          if [ -d tests ] || find . -maxdepth 2 -type f \( -name "test_*.py" -o -name "*_test.py" \) | grep -q .; then
+            pytest -q
+          else
+            echo "No tests found, skipping pytest."
+          fi
+
   deploy:
-    needs: ci
+    needs: [ci, ci_python]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
