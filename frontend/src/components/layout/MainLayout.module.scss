@@ -1,0 +1,39 @@
+@import '../../styles/variables.scss';
+
+.layout {
+  min-height: 100vh;
+}
+
+.sider {
+  box-shadow: 2px 0 8px 0 rgba(29, 35, 41, 0.05);
+  z-index: 10;
+}
+
+.logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: $primary-color;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  z-index: 1;
+}
+
+.headerRight {
+  padding-right: 24px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}

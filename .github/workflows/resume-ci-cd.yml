@@ -1,0 +1,103 @@
+name: resume-ci-cd
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: resume-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume-dist
+          path: frontend/dist
+          if-no-files-found: error
+
+  deploy:
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: resume-dist
+          path: dist
+
+      - name: Pack dist
+        run: tar -czf resume-dist.tgz -C dist .
+
+      - name: Upload to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: resume-dist.tgz
+          target: /tmp
+
+      - name: Deploy on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            DEPLOY_PATH="${DEPLOY_PATH:-/srv/www/resume}"
+            ARCHIVE="/tmp/resume-dist.tgz"
+            NEW_DIR="/srv/www/.deploy_resume_${{ github.sha }}"
+            BACKUP_DIR="/srv/www/.bak_resume_$(date +%Y%m%d%H%M%S)"
+
+            rm -rf "$NEW_DIR"
+            mkdir -p "$NEW_DIR"
+            tar -xzf "$ARCHIVE" -C "$NEW_DIR"
+
+            test -f "$NEW_DIR/index.html"
+
+            if [ -e "$DEPLOY_PATH" ] || [ -L "$DEPLOY_PATH" ]; then
+              mv "$DEPLOY_PATH" "$BACKUP_DIR"
+            fi
+
+            mv "$NEW_DIR" "$DEPLOY_PATH"
+            chmod -R a+rX "$DEPLOY_PATH"
+
+            rm -f "$ARCHIVE"
+
