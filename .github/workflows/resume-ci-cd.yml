@@ -71,7 +71,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-          python -m pip install black==23.9.1 isort==5.12.0 flake8==6.1.0 flake8-docstrings mypy==1.5.1 pytest types-dataclasses types-python-dotenv
+          python -m pip install black==23.9.1 isort==5.12.0 flake8==6.1.0 flake8-docstrings mypy==1.5.1 pytest types-dataclasses
 
       - name: Black
         run: black --check .
@@ -146,4 +146,3 @@ jobs:
             chmod -R a+rX "$DEPLOY_PATH"
 
             rm -f "$ARCHIVE"
-
