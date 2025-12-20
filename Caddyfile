@@ -1,0 +1,50 @@
+{
+  email admin@qishirecord.cn
+}
+
+(qishirecord_root) {
+  @health path /health
+  respond @health  healthy\n 200
+
+  root * /srv/www/root
+  file_server
+}
+
+qishirecord.cn, www.qishirecord.cn {
+  import qishirecord_root
+}
+
+qmeta.qishirecord.cn {
+  @qmeta_api {
+    path /auth /auth/* /sync /sync/* /storage /storage/* /notifications /notifications/*
+  }
+  handle @qmeta_api {
+    reverse_proxy qmeta-api:3001
+  }
+
+  handle {
+    root * /srv/www/qmeta
+    try_files {path} /index.html
+    file_server
+  }
+}
+
+resume.qishirecord.cn {
+  handle /api/* {
+    reverse_proxy 172.21.0.1:8000
+  }
+
+  handle {
+    root * /srv/www/resume
+    try_files {path} /index.html
+    file_server
+  }
+}
+
+api.qmeta.qishirecord.cn, qmeta-api.qishirecord.cn {
+  reverse_proxy qmeta-api:3001
+}
+
+llm-api.qishirecord.cn {
+  reverse_proxy 10.66.66.2:8000
+}
