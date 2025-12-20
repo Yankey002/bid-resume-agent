@@ -3,13 +3,13 @@
 max-line-length = 88
 
 # 忽略的规则
-ignore = 
-    E203,  # 与black冲突的空格规则
-    W503,  # 与black冲突的换行规则
-    E501,  # 行长度超过限制（由black处理）
+ignore =
+    E203,
+    W503,
+    E501,
 
 # 排除的文件和目录
-exclude = 
+exclude =
     .git,
     __pycache__,
     build,
