@@ -13,6 +13,8 @@ from typing import Any, Optional
 
 @dataclass(frozen=True)
 class OllamaGenerateOptions:
+    """Options for Ollama generation."""
+
     num_ctx: int = 4096
     temperature: float = 0.1
     timeout_s: int = 120

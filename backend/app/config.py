@@ -16,6 +16,8 @@ def _project_backend_dir() -> Path:
 
 @dataclass(frozen=True)
 class Settings:
+    """Application settings."""
+
     database_url: str
     jwt_secret_key: str
     jwt_algorithm: str

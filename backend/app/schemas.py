@@ -10,16 +10,22 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class TokenResponse(BaseModel):
+    """Schema for token response."""
+
     access_token: str
     token_type: Literal["bearer"] = "bearer"
 
 
 class LoginRequest(BaseModel):
+    """Schema for login request."""
+
     email: EmailStr
     password: str = Field(min_length=1, max_length=256)
 
 
 class UserPublic(BaseModel):
+    """Schema for public user data."""
+
     id: uuid.UUID
     email: EmailStr
     role: str
@@ -28,6 +34,8 @@ class UserPublic(BaseModel):
 
 
 class AdminCreateUserRequest(BaseModel):
+    """Schema for admin creating a user."""
+
     email: EmailStr
     password: str = Field(min_length=6, max_length=256)
     role: Literal["admin", "user"] = "user"
@@ -35,6 +43,8 @@ class AdminCreateUserRequest(BaseModel):
 
 
 class RawResumePublic(BaseModel):
+    """Schema for public raw resume data."""
+
     id: uuid.UUID
     original_filename: str
     content_type: str
