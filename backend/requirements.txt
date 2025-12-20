@@ -3,5 +3,20 @@
 # OpenAI Python客户端，用于调用OpenAI兼容的API
 openai>=1.0.0
 
+# Web API
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+
+# Config
+python-dotenv>=1.0.0
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+
+# Auth
+python-jose[cryptography]>=3.3.0
+passlib>=1.7.4
+
 # Python类型提示库（可选，用于更好的类型检查）
 typing_extensions>=4.0.0

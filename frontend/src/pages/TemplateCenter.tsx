@@ -1,6 +1,5 @@
 import React from 'react';
-import { Card, Button, Empty } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Card, Empty } from 'antd';
 
 const TemplateCenter: React.FC = () => {
   return (

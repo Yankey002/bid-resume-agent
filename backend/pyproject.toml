@@ -21,15 +21,11 @@ profile = "black"
 # 行长度
 line_length = 88
 
-# 排除的文件和目录
-exclude = [".git", "venv", "env", ".venv", "__pycache__", "build", "dist"]
-
 # 导入分组
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 
 # 合并相邻的导入
 combine_as_imports = true
-combine_star_imports = true
 
 # 排序方式
 case_sensitive = false

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Layout, Menu, theme } from 'antd';
+import { Layout, Menu } from 'antd';
+import { Button, Result } from 'antd';
 import {
   FileTextOutlined,
   AppstoreOutlined,
@@ -12,6 +13,7 @@ import { AppHeader } from './Header';
 import { ImportResumeButton } from './Header/ImportResumeButton';
 import { ImportTemplateButton } from './Header/ImportTemplateButton';
 import styles from './MainLayout.module.scss';
+import useAuthStore from '../../store/useAuthStore';
 
 const { Sider, Content } = Layout;
 
@@ -19,6 +21,7 @@ const MainLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const token = useAuthStore((s) => s.token);
 
   const menuItems = [
     {
@@ -101,7 +104,23 @@ const MainLayout: React.FC = () => {
             overflow: 'visible', // Allow shadows to overflow
           }}
         >
-          <Outlet />
+          {token ? (
+            <Outlet />
+          ) : (
+            <Result
+              status="403"
+              title="未登录"
+              subTitle="请先登录后再访问后端数据"
+              extra={
+                <Button
+                  type="primary"
+                  onClick={() => window.dispatchEvent(new CustomEvent('auth:show_login'))}
+                >
+                  去登录
+                </Button>
+              }
+            />
+          )}
         </Content>
       </Layout>
     </Layout>

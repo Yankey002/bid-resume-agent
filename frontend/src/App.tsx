@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import MainLayout from './components/layout/MainLayout';
@@ -9,8 +9,19 @@ import ExportHistory from './pages/ExportHistory';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import './styles/global.scss';
+import useAuthStore from './store/useAuthStore';
 
 const App: React.FC = () => {
+  const refreshMe = useAuthStore((s) => s.refreshMe);
+  const logout = useAuthStore((s) => s.logout);
+
+  useEffect(() => {
+    refreshMe().catch(() => undefined);
+    const onLogout = () => logout();
+    window.addEventListener('auth:logout', onLogout);
+    return () => window.removeEventListener('auth:logout', onLogout);
+  }, [logout, refreshMe]);
+
   return (
     <ConfigProvider
       theme={{
