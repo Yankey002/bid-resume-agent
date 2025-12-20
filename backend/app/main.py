@@ -19,8 +19,8 @@ def _create_app() -> FastAPI:
     """Create the FastAPI application."""
     app = FastAPI(title="Resume Pilot API", version="0.1.0")
 
-    app.add_middleware(  # type: ignore[call-arg, arg-type]
-        CORSMiddleware,
+    app.add_middleware(  # type: ignore
+        CORSMiddleware,  # type: ignore
         allow_origins=["*"],
         allow_credentials=False,
         allow_methods=["*"],
