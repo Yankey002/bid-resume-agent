@@ -19,7 +19,10 @@ class OllamaGenerateOptions:
 
 
 class OllamaClient:
+    """Client for interacting with Ollama API."""
+
     def __init__(self, *, base_url: str = "http://localhost:11434") -> None:
+        """Initialize OllamaClient with base URL."""
         self._base_url = base_url.rstrip("/")
 
     def generate_json(
@@ -29,6 +32,7 @@ class OllamaClient:
         prompt: str,
         options: OllamaGenerateOptions,
     ) -> dict[str, Any]:
+        """Generate JSON response from Ollama model."""
         payload: dict[str, Any] = {
             "model": model,
             "prompt": prompt,
@@ -66,12 +70,20 @@ def render_human_report(
 
     score = semantic_report.get("score", 0)
     severity = str(semantic_report.get("severity", "low") or "low")
-    meta = semantic_report.get("meta", {}) if isinstance(semantic_report.get("meta", {}), dict) else {}
+    meta = (
+        semantic_report.get("meta", {})
+        if isinstance(semantic_report.get("meta", {}), dict)
+        else {}
+    )
     llm_used = bool(meta.get("llm_used", False))
     llm_model = str(meta.get("llm_model", "") or "")
     llm_elapsed_ms = int(meta.get("llm_elapsed_ms", 0) or 0)
 
-    rule_summary = rule_report.get("summary", {}) if isinstance(rule_report.get("summary", {}), dict) else {}
+    rule_summary = (
+        rule_report.get("summary", {})
+        if isinstance(rule_report.get("summary", {}), dict)
+        else {}
+    )
     err = int(rule_summary.get("error", 0) or 0)
     warn = int(rule_summary.get("warning", 0) or 0)
     info = int(rule_summary.get("info", 0) or 0)
@@ -110,7 +122,9 @@ def render_human_report(
         lines.append(f"文本版块：{sec_info}")
 
     lines.append("")
-    lines.extend(_render_issue_block("一、格式/字段问题（确定性 + 语义补充）", fmt_issues, is_logic=False))
+    lines.extend(
+        _render_issue_block("一、格式/字段问题（确定性 + 语义补充）", fmt_issues, is_logic=False)
+    )
     lines.append("")
     lines.extend(_render_issue_block("二、逻辑一致性问题（语义）", logic_issues, is_logic=True))
     lines.append("")
@@ -131,6 +145,7 @@ def generate_semantic_report(
     timeline_conflict_threshold: int = 2,
     options: Optional[OllamaGenerateOptions] = None,
 ) -> dict[str, Any]:
+    """Generate a semantic report using LLM based on extracted data and rules."""
     if options is None:
         options = OllamaGenerateOptions()
 
@@ -147,7 +162,11 @@ def generate_semantic_report(
         "severity": _severity_from_rule_report(rule_report),
         "format_issues": format_issues,
         "logic_issues": [],
-        "rewrite_suggestions": {"summary": "", "project_bullets": [], "skill_section": ""},
+        "rewrite_suggestions": {
+            "summary": "",
+            "project_bullets": [],
+            "skill_section": "",
+        },
         "meta": {
             "llm_used": False,
             "llm_model": "",
@@ -214,7 +233,9 @@ def generate_semantic_report(
     return base_report
 
 
-def _options_for_model(*, model: str, options: OllamaGenerateOptions) -> OllamaGenerateOptions:
+def _options_for_model(
+    *, model: str, options: OllamaGenerateOptions
+) -> OllamaGenerateOptions:
     if "14b" in model or "32b" in model:
         return OllamaGenerateOptions(
             num_ctx=min(int(options.num_ctx), 2048),
@@ -258,7 +279,13 @@ def _validate_semantic_schema(obj: dict[str, Any]) -> None:
     if not isinstance(obj, dict):
         raise ValueError("语义报告不是对象")
 
-    required = ["score", "severity", "format_issues", "logic_issues", "rewrite_suggestions"]
+    required = [
+        "score",
+        "severity",
+        "format_issues",
+        "logic_issues",
+        "rewrite_suggestions",
+    ]
     for k in required:
         if k not in obj:
             raise ValueError(f"语义报告缺少字段：{k}")
@@ -290,7 +317,9 @@ def _merge_llm_into_base(
     merged["meta"]["llm_attempts"] = llm_attempts
     merged["meta"]["llm_elapsed_ms"] = llm_elapsed_ms
 
-    merged["logic_issues"] = llm.get("logic_issues", []) if isinstance(llm.get("logic_issues"), list) else []
+    merged["logic_issues"] = (
+        llm.get("logic_issues", []) if isinstance(llm.get("logic_issues"), list) else []
+    )
     merged["rewrite_suggestions"] = (
         llm.get("rewrite_suggestions", {})
         if isinstance(llm.get("rewrite_suggestions"), dict)
@@ -305,7 +334,9 @@ def _merge_llm_into_base(
 
     llm_sev = llm.get("severity", None)
     if isinstance(llm_sev, str) and llm_sev in {"low", "medium", "high"}:
-        merged["severity"] = _max_severity(str(base_report.get("severity", "low")), llm_sev)
+        merged["severity"] = _max_severity(
+            str(base_report.get("severity", "low")), llm_sev
+        )
 
     llm_format = llm.get("format_issues", None)
     if isinstance(llm_format, list) and llm_format:
@@ -448,11 +479,7 @@ def _redact_pii(text: str) -> str:
 
 
 def _tighten_prompt(prompt: str) -> str:
-    return (
-        prompt
-        + "\n\n"
-        + "重要：只输出一个 JSON 对象，不要输出任何解释文字、不使用 markdown 代码块。"
-    )
+    return prompt + "\n\n" + "重要：只输出一个 JSON 对象，不要输出任何解释文字、不使用 markdown 代码块。"
 
 
 def _build_semantic_prompt(
@@ -471,7 +498,14 @@ def _build_semantic_prompt(
     schema = {
         "score": 0,
         "severity": "low | medium | high",
-        "format_issues": [{"code": "MISSING_FIELD | DATE_FORMAT | LAYOUT | TYPO", "message": "", "location": "", "fix": ""}],
+        "format_issues": [
+            {
+                "code": "MISSING_FIELD | DATE_FORMAT | LAYOUT | TYPO",
+                "message": "",
+                "location": "",
+                "fix": "",
+            }
+        ],
         "logic_issues": [
             {
                 "code": "TIMELINE_CONFLICT | INCONSISTENCY | SKILL_MISMATCH",
@@ -480,7 +514,11 @@ def _build_semantic_prompt(
                 "fix": "",
             }
         ],
-        "rewrite_suggestions": {"summary": "", "project_bullets": [""], "skill_section": ""},
+        "rewrite_suggestions": {
+            "summary": "",
+            "project_bullets": [""],
+            "skill_section": "",
+        },
     }
     return (
         "你是中文简历质检系统的大模型语义层。你的目标是：基于输入中的结构化结果与规则引擎输出，"
@@ -566,7 +604,11 @@ def _render_rewrite_block(title: str, rewrite: dict[str, Any]) -> list[str]:
         lines.append(summary.strip())
     project_bullets = rewrite.get("project_bullets", [])
     if isinstance(project_bullets, list):
-        bullets = [str(x).strip() for x in project_bullets if isinstance(x, str) and str(x).strip()]
+        bullets = [
+            str(x).strip()
+            for x in project_bullets
+            if isinstance(x, str) and str(x).strip()
+        ]
         if bullets:
             lines.append("项目要点改写：")
             for b in bullets[:12]:

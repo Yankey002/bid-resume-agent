@@ -18,8 +18,12 @@ from docx.section import Section
 from docx.table import Table
 from docx.text.paragraph import Paragraph
 
+from .llm_engine import (
+    OllamaGenerateOptions,
+    generate_semantic_report,
+    render_human_report,
+)
 from .rule_engine import validate_work_experience
-from .llm_engine import OllamaGenerateOptions, generate_semantic_report, render_human_report
 
 BlockKind = Literal["paragraph", "table"]
 LocationKind = Literal["body", "header", "footer"]
@@ -153,19 +157,31 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(f"仅支持 .docx 或 .json：{input_path}", file=sys.stderr)
         return 2
     if args.experience_only and args.validate_work_experience:
-        print("--experience-only 不能与 --validate-work-experience 同时使用", file=sys.stderr)
+        print(
+            "--experience-only 不能与 --validate-work-experience 同时使用",
+            file=sys.stderr,
+        )
         return 2
     if args.experience_only and args.llm_work_experience_report:
-        print("--experience-only 不能与 --llm-work-experience-report 同时使用", file=sys.stderr)
+        print(
+            "--experience-only 不能与 --llm-work-experience-report 同时使用",
+            file=sys.stderr,
+        )
         return 2
     if args.validate_work_experience and args.llm_work_experience_report:
-        print("--validate-work-experience 不能与 --llm-work-experience-report 同时使用", file=sys.stderr)
+        print(
+            "--validate-work-experience 不能与 --llm-work-experience-report 同时使用",
+            file=sys.stderr,
+        )
         return 2
     if args.experience_only and not args.extract_work_experience:
         print("--experience-only 需配合 --extract-work-experience 使用", file=sys.stderr)
         return 2
     if args.human_report_only and not args.llm_work_experience_report:
-        print("--human-report-only 需配合 --llm-work-experience-report 使用", file=sys.stderr)
+        print(
+            "--human-report-only 需配合 --llm-work-experience-report 使用",
+            file=sys.stderr,
+        )
         return 2
     if args.human_report_output and not args.human_report_only:
         print("--human-report-output 需配合 --human-report-only 使用", file=sys.stderr)
@@ -244,7 +260,14 @@ def _extract_resume_sections(data: Any) -> dict[str, str]:
     keywords = {
         "skills": {"技能", "专业技能", "技能清单", "技术栈", "技能栈", "核心技能"},
         "projects": {"项目经历", "项目经验", "主要项目", "代表项目"},
-        "self_evaluation": {"自我评价", "个人总结", "个人评价", "自我总结", "个人优势", "自我描述"},
+        "self_evaluation": {
+            "自我评价",
+            "个人总结",
+            "个人评价",
+            "自我总结",
+            "个人优势",
+            "自我描述",
+        },
     }
 
     def norm(s: str) -> str:
@@ -338,9 +361,13 @@ def _extract_page_setup(section: Section) -> dict[str, Any]:
         "page_width_twips": int(section.page_width) if section.page_width else None,
         "page_height_twips": int(section.page_height) if section.page_height else None,
         "margin_top_twips": int(section.top_margin) if section.top_margin else None,
-        "margin_bottom_twips": int(section.bottom_margin) if section.bottom_margin else None,
+        "margin_bottom_twips": (
+            int(section.bottom_margin) if section.bottom_margin else None
+        ),
         "margin_left_twips": int(section.left_margin) if section.left_margin else None,
-        "margin_right_twips": int(section.right_margin) if section.right_margin else None,
+        "margin_right_twips": (
+            int(section.right_margin) if section.right_margin else None
+        ),
     }
 
 
@@ -355,9 +382,13 @@ def _iter_body_blocks(doc: DocxDocument) -> Iterator[dict[str, Any]]:
             yield _table_to_block(doc, obj, location="body")
 
 
-def _iter_container_blocks(doc: DocxDocument, container: Any) -> Iterator[dict[str, Any]]:
+def _iter_container_blocks(
+    doc: DocxDocument, container: Any
+) -> Iterator[dict[str, Any]]:
     """Iterate blocks inside a header/footer container in order."""
-    element = getattr(container, "element", None) or getattr(container, "_element", None)
+    element = getattr(container, "element", None) or getattr(
+        container, "_element", None
+    )
     if element is None:
         for p in getattr(container, "paragraphs", []):
             yield _paragraph_to_block(doc, p, location=_container_location(container))
@@ -390,7 +421,9 @@ def _container_location(container: Any) -> LocationKind:
     return "body"
 
 
-def _iter_doc_body_nodes(doc: DocxDocument) -> Iterable[Tuple[BlockKind, Union[Paragraph, Table]]]:
+def _iter_doc_body_nodes(
+    doc: DocxDocument,
+) -> Iterable[Tuple[BlockKind, Union[Paragraph, Table]]]:
     """Yield paragraph/table nodes from the underlying DOCX body XML."""
     body = doc.element.body
     for child in body.iterchildren():
@@ -422,15 +455,17 @@ def _paragraph_to_block(
         "text": paragraph.text,
         "style": {
             "paragraph_style": style_name,
-            "alignment": str(paragraph.alignment) if paragraph.alignment is not None else "",
+            "alignment": (
+                str(paragraph.alignment) if paragraph.alignment is not None else ""
+            ),
             "line_spacing": fmt.line_spacing,
             "space_before_twips": int(fmt.space_before) if fmt.space_before else None,
             "space_after_twips": int(fmt.space_after) if fmt.space_after else None,
             "left_indent_twips": int(fmt.left_indent) if fmt.left_indent else None,
             "right_indent_twips": int(fmt.right_indent) if fmt.right_indent else None,
-            "first_line_indent_twips": int(fmt.first_line_indent)
-            if fmt.first_line_indent
-            else None,
+            "first_line_indent_twips": (
+                int(fmt.first_line_indent) if fmt.first_line_indent else None
+            ),
         },
         "runs": runs,
         "images": images,
@@ -546,7 +581,9 @@ def _extract_cell_merge_info(tc: Any) -> dict[str, Any]:
     return out
 
 
-def _extract_images_from_paragraph(doc: DocxDocument, paragraph: Paragraph) -> list[dict[str, Any]]:
+def _extract_images_from_paragraph(
+    doc: DocxDocument, paragraph: Paragraph
+) -> list[dict[str, Any]]:
     """Extract image references from all runs in a paragraph."""
     images: list[dict[str, Any]] = []
     for run in paragraph.runs:
@@ -666,11 +703,17 @@ def extract_work_experience(doc_json: dict[str, Any]) -> dict[str, Any]:
     return {"tables": tables, "items": items}
 
 
-def _iter_all_table_blocks(doc_json: dict[str, Any]) -> Iterator[tuple[dict[str, Any], dict[str, Any]]]:
+def _iter_all_table_blocks(
+    doc_json: dict[str, Any],
+) -> Iterator[tuple[dict[str, Any], dict[str, Any]]]:
     """Iterate all table blocks from body and sections, with references."""
     for idx, b in enumerate(doc_json.get("blocks", [])):
         if isinstance(b, dict) and b.get("type") == "table":
-            yield b, {"scope": "body", "block_index": idx, "location": b.get("location", "body")}
+            yield b, {
+                "scope": "body",
+                "block_index": idx,
+                "location": b.get("location", "body"),
+            }
 
     for s_idx, section in enumerate(doc_json.get("sections", [])):
         for area in ("header", "footer"):
@@ -698,7 +741,12 @@ def _find_experience_header_row(table_block: dict[str, Any]) -> Optional[int]:
         if not isinstance(row_cells, list) or not row_cells:
             continue
         row_text = " ".join(
-            t for t in (_normalize_text(_cell_text_resolved(table_block, r_idx, c_idx)) for c_idx in range(len(row_cells))) if t
+            t
+            for t in (
+                _normalize_text(_cell_text_resolved(table_block, r_idx, c_idx))
+                for c_idx in range(len(row_cells))
+            )
+            if t
         )
         if not row_text:
             continue
@@ -712,7 +760,9 @@ def _find_experience_header_row(table_block: dict[str, Any]) -> Optional[int]:
     return None
 
 
-def _build_experience_column_map(table_block: dict[str, Any], header_row: int) -> dict[str, dict[str, Any]]:
+def _build_experience_column_map(
+    table_block: dict[str, Any], header_row: int
+) -> dict[str, dict[str, Any]]:
     """Build a semantic column map from the header row."""
     header_cells = table_block.get("rows", [])[header_row]
     if not isinstance(header_cells, list) or not header_cells:
@@ -771,7 +821,9 @@ def _extract_experience_rows(
         time_raw = _extract_segment_text(table_block, r_idx, column_map.get("time"))
         project = _extract_segment_text(table_block, r_idx, column_map.get("project"))
         role = _extract_segment_text(table_block, r_idx, column_map.get("role"))
-        contact_raw = _extract_segment_text(table_block, r_idx, column_map.get("contact"))
+        contact_raw = _extract_segment_text(
+            table_block, r_idx, column_map.get("contact")
+        )
 
         if not any([time_raw, project, role, contact_raw]):
             continue
@@ -845,7 +897,9 @@ def _extract_segment_text(
     return _normalize_text(_cell_text_resolved(table_block, row_index, start))
 
 
-def _cell_text_original(table_block: dict[str, Any], row_index: int, col_index: int) -> str:
+def _cell_text_original(
+    table_block: dict[str, Any], row_index: int, col_index: int
+) -> str:
     """Get the raw text stored for a table cell."""
     cell = _get_cell(table_block, row_index, col_index)
     if not isinstance(cell, dict):
@@ -853,7 +907,9 @@ def _cell_text_original(table_block: dict[str, Any], row_index: int, col_index: 
     return str(cell.get("text", "") or "")
 
 
-def _cell_text_resolved(table_block: dict[str, Any], row_index: int, col_index: int) -> str:
+def _cell_text_resolved(
+    table_block: dict[str, Any], row_index: int, col_index: int
+) -> str:
     """Get the resolved text for a cell, following merged cell references."""
     cell = _get_cell(table_block, row_index, col_index)
     if not isinstance(cell, dict):
