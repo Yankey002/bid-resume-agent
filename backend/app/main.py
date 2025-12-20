@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import Callable
+from typing import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,7 +29,7 @@ def _create_app() -> FastAPI:
 
     @app.middleware("http")
     async def add_request_id(
-        request: Request, call_next: Callable[[Request], Response]
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         """Attach a request id header for tracing."""
         request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
