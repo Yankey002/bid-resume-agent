@@ -98,6 +98,8 @@ venv.bak/
 # Local storage (uploaded files)
 backend/storage/raw_resumes/*
 !backend/storage/raw_resumes/.gitkeep
+backend/storage/templates/*
+!backend/storage/templates/.gitkeep
 
 # Spyder project settings
 .spyderproject

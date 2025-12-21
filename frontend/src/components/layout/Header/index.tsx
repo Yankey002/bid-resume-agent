@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Layout, Button, Dropdown, Form, Input, Modal, theme, Tooltip, message } from 'antd';
+import { Layout, Button, Dropdown, Form, Input, Modal, Tooltip, message } from 'antd';
 import { LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined, UserOutlined } from '@ant-design/icons';
 import styles from './header.module.scss';
 import api from '../../../services/api';
@@ -12,10 +12,10 @@ interface AppHeaderProps {
   onCollapse: () => void;
   title: string;
   action?: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ collapsed, onCollapse, title, action }) => {
-  const { token: { colorBgContainer } } = theme.useToken();
+export const AppHeader: React.FC<AppHeaderProps> = ({ collapsed, onCollapse, title, action, style }) => {
   const [loginOpen, setLoginOpen] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [form] = Form.useForm();
@@ -75,7 +75,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ collapsed, onCollapse, tit
   const openLogin = () => setLoginOpen(true);
 
   return (
-    <Header style={{ padding: '0 24px', background: colorBgContainer, borderBottom: '1px solid rgba(0, 0, 0, 0.06)' }}>
+    <Header style={{
+      padding: '0 24px',
+      background: 'rgba(255, 255, 255, 0.7)', // 增加透明度
+      backdropFilter: 'blur(12px)', // 增强模糊
+      borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
+      width: '100%',
+      transition: 'all 0.3s ease',
+      ...style
+    }}>
       <div className={styles.headerWrapper}>
         <div className={styles.leftSection}>
           <Button

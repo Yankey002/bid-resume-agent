@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import get_settings
 from .db import engine
 from .models import Base, User
-from .routes import admin, auth, candidates, llm, resumes
+from .routes import admin, auth, candidates, llm, resumes, templates
 from .security import hash_password
 
 
@@ -42,6 +42,7 @@ def _create_app() -> FastAPI:
     app.include_router(resumes.router)
     app.include_router(llm.router)
     app.include_router(candidates.router)
+    app.include_router(templates.router)
 
     return app
 
@@ -54,6 +55,7 @@ def on_startup() -> None:
     """Initialize database schema and bootstrap admin user."""
     settings = get_settings()
     settings.raw_resume_dir.mkdir(parents=True, exist_ok=True)
+    settings.template_dir.mkdir(parents=True, exist_ok=True)
 
     Base.metadata.create_all(bind=engine)
 

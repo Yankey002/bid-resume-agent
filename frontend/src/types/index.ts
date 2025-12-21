@@ -24,3 +24,14 @@ export interface CandidateSearchParams {
   name?: string;
   limit?: number;
 }
+
+export interface Template {
+  id: string;
+  name: string;
+  original_filename: string;
+  content_type?: string;
+  size_bytes?: number;
+  storage_path: string;
+  uploaded_at: string;
+  updated_at?: string;
+}

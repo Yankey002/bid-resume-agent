@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Card, Descriptions, Empty, Spin, List, Tag, Collapse, Button, Space } from 'antd';
+import { Typography, Card, Descriptions, Empty, Spin, List, Button, Space } from 'antd';
 import { FileTextOutlined, DownloadOutlined } from '@ant-design/icons';
 import { candidateService } from '../../../services/candidateService';
 import { resumeService } from '../../../services/resumeService';
 import type { Candidate, RawResume } from '../../../types';
 import styles from './CandidateDetail.module.scss';
 
-const { Title, Text } = Typography;
-const { Panel } = Collapse;
+const { Text } = Typography;
 
 interface CandidateDetailProps {
   candidateId: string | null;
@@ -70,63 +69,60 @@ export const CandidateDetail: React.FC<CandidateDetailProps> = ({ candidateId })
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.headerInfo}>
-            <Title level={3} style={{ margin: 0 }}>
-            {candidate.name}
-            </Title>
-            <Tag color="blue" className={styles.idTag}>ID: {candidate.unique_id}</Tag>
-        </div>
-        <div className={styles.headerActions}>
-            {/* Future actions like Edit Profile */}
-        </div>
-      </div>
-
       <div className={styles.content}>
-        <Card className={styles.infoCard} title="基本信息" bordered={false}>
-          <Descriptions column={2}>
+        {/* 1. 基本信息 */}
+        <Card className={styles.infoCard} title="基本信息" bordered={false} size="small">
+          <Descriptions column={2} size="small">
+            <Descriptions.Item label="姓名">{candidate.name}</Descriptions.Item>
             <Descriptions.Item label="系统编号">{candidate.unique_id}</Descriptions.Item>
             <Descriptions.Item label="创建时间">{new Date(candidate.created_at).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label="简历数量">{resumes.length}</Descriptions.Item>
             <Descriptions.Item label="更新时间">{new Date(candidate.updated_at).toLocaleString()}</Descriptions.Item>
           </Descriptions>
         </Card>
 
-        <div className={styles.filesSection}>
-            <Title level={5}>文件归档</Title>
-            <Collapse defaultActiveKey={['1']} ghost>
-                <Panel header={`关联简历 (${resumes.length})`} key="1">
-                     <List
-                        itemLayout="horizontal"
-                        dataSource={resumes}
-                        renderItem={item => (
-                        <List.Item
-                            actions={[
-                                <Button
-                                    type="text"
-                                    icon={<DownloadOutlined />}
-                                    onClick={() => window.open(`${(import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '')}/${item.storage_path}`, '_blank')}
-                                >
-                                    下载
-                                </Button>
-                            ]}
+        {/* 2. 履历信息 (Placeholder) */}
+        <Card className={styles.infoCard} title="履历信息" bordered={false} size="small">
+            <Empty description="暂无履历解析数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        </Card>
+
+        {/* 3. 图片信息 (Placeholder) */}
+        <Card className={styles.infoCard} title="图片信息" bordered={false} size="small">
+             <Empty description="暂无图片" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        </Card>
+
+        {/* 4. 相关文件 */}
+        <Card className={styles.infoCard} title={`相关文件 (${resumes.length})`} bordered={false} size="small">
+            <List
+                itemLayout="horizontal"
+                dataSource={resumes}
+                size="small"
+                renderItem={item => (
+                <List.Item
+                    actions={[
+                        <Button
+                            type="link"
+                            size="small"
+                            icon={<DownloadOutlined />}
+                            onClick={() => window.open(`${(import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '')}/${item.storage_path}`, '_blank')}
                         >
-                            <List.Item.Meta
-                            avatar={<FileTextOutlined style={{ fontSize: '24px', color: '#1890ff' }} />}
-                            title={<a href="#">{item.original_filename}</a>}
-                            description={
-                                <Space>
-                                    <Text type="secondary">{new Date(item.uploaded_at).toLocaleString()}</Text>
-                                    <Text type="secondary">{(item.size_bytes / 1024).toFixed(1)} KB</Text>
-                                </Space>
-                            }
-                            />
-                        </List.Item>
-                        )}
+                            下载
+                        </Button>
+                    ]}
+                >
+                    <List.Item.Meta
+                    avatar={<FileTextOutlined style={{ fontSize: '20px', color: '#1890ff' }} />}
+                    title={<a href="#">{item.original_filename}</a>}
+                    description={
+                        <Space size="small">
+                            <Text type="secondary" style={{ fontSize: '12px' }}>{new Date(item.uploaded_at).toLocaleString()}</Text>
+                            <Text type="secondary" style={{ fontSize: '12px' }}>{(item.size_bytes / 1024).toFixed(1)} KB</Text>
+                        </Space>
+                    }
                     />
-                </Panel>
-            </Collapse>
-        </div>
+                </List.Item>
+                )}
+            />
+        </Card>
       </div>
     </div>
   );

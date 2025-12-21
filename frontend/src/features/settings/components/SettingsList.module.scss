@@ -8,15 +8,6 @@
   background-color: #fff;
 }
 
-.header {
-  padding: 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.searchInput {
-  width: 100%;
-}
-
 .listContainer {
   flex: 1;
   overflow-y: auto;
@@ -46,6 +37,11 @@
       width: 3px;
       background: $primary-gradient;
     }
+
+    .avatar {
+      background-color: #e6f7ff;
+      color: #1890ff;
+    }
   }
 }
 
@@ -58,12 +54,5 @@
   align-items: center;
   justify-content: center;
   color: #8c8c8c;
-}
-
-.idTag {
-  border: none;
-  background: rgba(118, 75, 162, 0.1);
-  color: $primary-color;
-  font-size: 12px;
-  line-height: 20px;
+  transition: all 0.2s;
 }

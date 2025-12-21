@@ -55,7 +55,7 @@ export const ImportResumeModal: React.FC<ImportResumeModalProps> = ({ open, onCl
 
           lastSuggestedIdRef.current = nextId;
           return String(nextId).padStart(6, '0');
-      } catch (e) {
+      } catch {
           // Fallback
           const nextId = (lastSuggestedIdRef.current || 0) + 1;
           lastSuggestedIdRef.current = nextId;
@@ -292,7 +292,7 @@ export const ImportResumeModal: React.FC<ImportResumeModalProps> = ({ open, onCl
       width={700}
       maskClosable={!uploading}
     >
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <Space orientation="vertical" style={{ width: '100%' }} size="large">
 
         {/* 选择区域 */}
         <Dragger

@@ -1,40 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { Layout } from 'antd';
 import { CandidateList } from '../features/resumes/components/CandidateList';
 import { CandidateDetail } from '../features/resumes/components/CandidateDetail';
 import type { Candidate } from '../types';
-
-const { Sider, Content } = Layout;
+import useResumeStore from '../store/useResumeStore';
+import { MasterDetailLayout } from '../components/layout/MasterDetailLayout';
 
 const ResumeLibrary: React.FC = () => {
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const triggerRefresh = useResumeStore((s) => s.triggerRefresh);
+  const isSidebarOpen = useResumeStore((s) => s.isSidebarOpen);
 
   useEffect(() => {
     const onRefresh = () => {
-      setRefreshTrigger(prev => prev + 1);
+      triggerRefresh();
     };
     window.addEventListener('resumes:refresh', onRefresh);
     return () => window.removeEventListener('resumes:refresh', onRefresh);
-  }, []);
+  }, [triggerRefresh]);
 
   const handleSelectCandidate = (candidate: Candidate | null) => {
     setSelectedCandidateId(candidate ? candidate.id : null);
   };
 
   return (
-    <Layout style={{ height: 'calc(100vh - 64px)', background: '#fff' }}>
-      <Sider width={300} theme="light" style={{ borderRight: '1px solid #f0f0f0' }}>
+    <MasterDetailLayout
+      isSidebarOpen={isSidebarOpen}
+      sidebarContent={
         <CandidateList
           onSelectCandidate={handleSelectCandidate}
           selectedCandidateId={selectedCandidateId || undefined}
-          refreshTrigger={refreshTrigger}
         />
-      </Sider>
-      <Content>
-        <CandidateDetail candidateId={selectedCandidateId} />
-      </Content>
-    </Layout>
+      }
+      mainContent={<CandidateDetail candidateId={selectedCandidateId} />}
+    />
   );
 };
 

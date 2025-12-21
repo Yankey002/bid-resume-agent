@@ -75,3 +75,22 @@ class CandidateCreate(BaseModel):
     unique_id: Optional[str] = Field(
         None, min_length=6, max_length=6, pattern=r"^\d{6}$"
     )
+
+
+class TemplatePublic(BaseModel):
+    """Schema for public template data."""
+
+    id: uuid.UUID
+    name: str
+    original_filename: str
+    content_type: Optional[str] = None
+    size_bytes: Optional[int] = None
+    storage_path: str
+    uploaded_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
+class TemplateUpdate(BaseModel):
+    """Schema for updating a template."""
+
+    name: Optional[str] = Field(None, min_length=1, max_length=128)

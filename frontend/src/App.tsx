@@ -1,15 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, Spin } from 'antd';
 import MainLayout from './components/layout/MainLayout';
-import TemplateCenter from './pages/TemplateCenter';
-import ResumeLibrary from './pages/ResumeLibrary';
-import ReviewOptimize from './pages/ReviewOptimize';
-import ExportHistory from './pages/ExportHistory';
-import Settings from './pages/Settings';
-import NotFound from './pages/NotFound';
 import './styles/global.scss';
 import useAuthStore from './store/useAuthStore';
+
+const TemplateCenter = lazy(() => import('./pages/TemplateCenter'));
+const ResumeLibrary = lazy(() => import('./pages/ResumeLibrary'));
+const ReviewOptimize = lazy(() => import('./pages/ReviewOptimize'));
+const ExportHistory = lazy(() => import('./pages/ExportHistory'));
+const Settings = lazy(() => import('./pages/Settings'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 const App: React.FC = () => {
   const refreshMe = useAuthStore((s) => s.refreshMe);
@@ -46,17 +47,19 @@ const App: React.FC = () => {
       }}
     >
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Navigate to="/resumes" replace />} />
-            <Route path="templates" element={<TemplateCenter />} />
-            <Route path="resumes" element={<ResumeLibrary />} />
-            <Route path="review" element={<ReviewOptimize />} />
-            <Route path="exports" element={<ExportHistory />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
+        <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><Spin size="large" /></div>}>
+          <Routes>
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Navigate to="/resumes" replace />} />
+              <Route path="templates" element={<TemplateCenter />} />
+              <Route path="resumes" element={<ResumeLibrary />} />
+              <Route path="review" element={<ReviewOptimize />} />
+              <Route path="exports" element={<ExportHistory />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </ConfigProvider>
   );

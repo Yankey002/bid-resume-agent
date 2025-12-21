@@ -58,6 +58,7 @@ body {
 
 // 按钮光效增强
 .ant-btn-primary {
+  background: $primary-gradient !important;
   border: none !important;
   box-shadow: 0 4px 14px 0 rgba(118, 75, 162, 0.39) !important;
   transition: all 0.3s ease !important;

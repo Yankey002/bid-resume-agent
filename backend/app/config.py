@@ -23,6 +23,7 @@ class Settings:
     jwt_algorithm: str
     jwt_access_token_exp_minutes: int
     raw_resume_dir: Path
+    template_dir: Path
     admin_email: str
     admin_password: str
 
@@ -43,6 +44,9 @@ def get_settings() -> Settings:
             "RAW_RESUME_DIR", str(_project_backend_dir() / "storage" / "raw_resumes")
         )
     )
+    template_dir = Path(
+        os.getenv("TEMPLATE_DIR", str(_project_backend_dir() / "storage" / "templates"))
+    )
 
     admin_email = os.getenv("ADMIN_EMAIL", "admin@qishirecord.cn")
     admin_password = os.getenv("ADMIN_PASSWORD", "yanky430")
@@ -53,6 +57,7 @@ def get_settings() -> Settings:
         jwt_algorithm=jwt_algorithm,
         jwt_access_token_exp_minutes=jwt_access_token_exp_minutes,
         raw_resume_dir=raw_resume_dir,
+        template_dir=template_dir,
         admin_email=admin_email,
         admin_password=admin_password,
     )
