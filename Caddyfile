@@ -31,7 +31,7 @@ qmeta.qishirecord.cn {
 
 resume.qishirecord.cn {
   handle /api/* {
-    reverse_proxy 10.8.0.2:8000
+    reverse_proxy 172.21.0.1:8000
   }
 
   handle {
@@ -42,7 +42,7 @@ resume.qishirecord.cn {
 }
 
 api.resume.qishirecord.cn {
-  reverse_proxy 10.8.0.2:8000
+  reverse_proxy 172.21.0.1:8000
 }
 
 api.qmeta.qishirecord.cn, qmeta-api.qishirecord.cn {
