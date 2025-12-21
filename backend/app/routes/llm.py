@@ -71,9 +71,16 @@ class ExtractNameResponse(BaseModel):
 
 def _load_llm_config(db: Session) -> LLMConfig:
     """从数据库读取并合并默认值，返回完整的 LLMConfig."""
+
+    def _create_config(data: dict) -> LLMConfig:
+        return LLMConfig(
+            resume_parsing=ModuleConfig(**data.get("resume_parsing", {})),
+            template_annotation=ModuleConfig(**data.get("template_annotation", {})),
+        )
+
     cfg = db.query(AppConfig).filter(AppConfig.key == "llm_settings").first()
     if not cfg:
-        return LLMConfig(**DEFAULT_LLM_CONFIG)
+        return _create_config(DEFAULT_LLM_CONFIG)
 
     try:
         data = json.loads(cfg.value)
@@ -106,9 +113,9 @@ def _load_llm_config(db: Session) -> LLMConfig:
                 **merged["template_annotation"],
                 **data["template_annotation"],
             }
-        return LLMConfig(**merged)
+        return _create_config(merged)
     except Exception:
-        return LLMConfig(**DEFAULT_LLM_CONFIG)
+        return _create_config(DEFAULT_LLM_CONFIG)
 
 
 def _clean_extracted_name(text: str) -> str:
