@@ -45,14 +45,36 @@ class OllamaClient:
                 "temperature": float(options.temperature),
             },
         }
+        return self._post_generate(payload, options.timeout_s)
 
+    def generate_text(
+        self,
+        *,
+        model: str,
+        prompt: str,
+        options: OllamaGenerateOptions,
+    ) -> str:
+        """Generate text response from Ollama model."""
+        payload: dict[str, Any] = {
+            "model": model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "num_ctx": int(options.num_ctx),
+                "temperature": float(options.temperature),
+            },
+        }
+        res = self._post_generate(payload, options.timeout_s)
+        return res.get("response", "")
+
+    def _post_generate(self, payload: dict[str, Any], timeout_s: int) -> dict[str, Any]:
         req = urllib.request.Request(
             f"{self._base_url}/api/generate",
             data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=options.timeout_s) as resp:
+        with urllib.request.urlopen(req, timeout=timeout_s) as resp:
             raw = resp.read().decode("utf-8", errors="replace")
             return json.loads(raw)
 

@@ -3,10 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "dev": "concurrently -n \"client,server,tunnel\" -c \"green,blue,magenta\" \"pnpm dev:client\" \"pnpm dev:server\" \"pnpm dev:tunnel\"",
+    "dev:backend": "concurrently -n \"server,tunnel\" -c \"blue,magenta\" \"pnpm dev:server\" \"pnpm dev:tunnel\"",
     "dev:client": "pnpm -C frontend dev",
+    "dev:server": "cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
+    "dev:tunnel": "ssh -i C:\\Users\\Qirui\\.ssh\\id_ed25519 -N -R 0.0.0.0:8000:127.0.0.1:8000 -o StrictHostKeyChecking=no root@82.156.100.175",
     "build:client": "pnpm -C frontend build",
     "preview:client": "pnpm -C frontend preview",
     "install:client": "pnpm -C frontend install"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@9.0.0",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
 }

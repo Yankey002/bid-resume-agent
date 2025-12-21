@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Card, Form, Switch, Divider, Table, Button, Modal, Input, Select, Space, Tag, message } from 'antd';
+import { Card, Form, Switch, Divider, Table, Button, Modal, Input, Select, Space, Tag, message, Tabs } from 'antd';
 import type { TableProps } from 'antd';
 import api from '../services/api';
 import useAuthStore from '../store/useAuthStore';
+import LLMControlCenter from '../features/settings/LLMControlCenter';
 
 type UserRow = { id: string; email: string; role: string; is_active: boolean; created_at?: string | null };
 
@@ -23,7 +24,7 @@ const Settings: React.FC = () => {
       const resp = await api.get('/admin/users', { skipErrorHandler: true });
       setUsers(Array.isArray(resp.data) ? resp.data : []);
     } catch {
-      message.error('获取用户列表失败');
+      // message.error('获取用户列表失败');
     } finally {
       setUsersLoading(false);
     }
@@ -81,30 +82,42 @@ const Settings: React.FC = () => {
     ];
   }, [loadUsers, user?.email]);
 
-  return (
-    <div>
-      <Card title="通用设置">
-        <Form layout="vertical">
-          <Form.Item label="自动提取模式">
-             <Switch checkedChildren="开启" unCheckedChildren="关闭" defaultChecked />
-          </Form.Item>
-          <Divider />
-          <Form.Item label="深色模式">
-             <Switch checkedChildren="开启" unCheckedChildren="关闭" />
-          </Form.Item>
-        </Form>
-      </Card>
+  const generalSettings = (
+    <Card title="通用设置" bordered={false}>
+      <Form layout="vertical">
+        <Form.Item label="自动提取模式">
+           <Switch checkedChildren="开启" unCheckedChildren="关闭" defaultChecked />
+        </Form.Item>
+        <Divider />
+        <Form.Item label="深色模式">
+           <Switch checkedChildren="开启" unCheckedChildren="关闭" />
+        </Form.Item>
+      </Form>
+    </Card>
+  );
 
-      {isAdmin ? (
-        <Card title="管理员：用户管理" style={{ marginTop: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+  const userManagement = (
+    <Card title="用户管理" bordered={false}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <Button type="primary" onClick={() => setCreateOpen(true)}>
               新建用户
             </Button>
           </div>
           <Table rowKey="id" loading={usersLoading} columns={columns} dataSource={users} pagination={{ pageSize: 10 }} />
         </Card>
-      ) : null}
+  );
+
+  const items = [
+    { label: '通用设置', key: 'general', children: generalSettings },
+    ...(isAdmin ? [
+      { label: '用户管理', key: 'users', children: userManagement },
+      { label: '大模型控制中心', key: 'llm', children: <LLMControlCenter /> }
+    ] : [])
+  ];
+
+  return (
+    <div style={{ padding: 24 }}>
+      <Tabs defaultActiveKey="general" items={items} />
 
       <Modal
         open={createOpen}

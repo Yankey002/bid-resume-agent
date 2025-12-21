@@ -53,3 +53,25 @@ class RawResumePublic(BaseModel):
     storage_path: str
     uploaded_by_user_id: uuid.UUID
     uploaded_at: Optional[datetime] = None
+    candidate_name: Optional[str] = None
+    candidate_id: Optional[uuid.UUID] = None
+
+
+class CandidatePublic(BaseModel):
+    """Schema for public candidate data."""
+
+    id: uuid.UUID
+    unique_id: str
+    name: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    resumes_count: Optional[int] = 0  # Optional count of attached resumes
+
+
+class CandidateCreate(BaseModel):
+    """Schema for creating a candidate."""
+
+    name: str = Field(min_length=1, max_length=128)
+    unique_id: Optional[str] = Field(
+        None, min_length=6, max_length=6, pattern=r"^\d{6}$"
+    )

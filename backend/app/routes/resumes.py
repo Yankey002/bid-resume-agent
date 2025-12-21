@@ -5,9 +5,9 @@ from __future__ import annotations
 import hashlib
 import uuid
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.orm import Session
 
 from ..config import get_settings
@@ -66,6 +66,8 @@ def _resume_to_public(r: RawResume) -> RawResumePublic:
         storage_path=r.storage_path,
         uploaded_by_user_id=r.uploaded_by_user_id,
         uploaded_at=r.uploaded_at,
+        candidate_name=r.candidate_name,
+        candidate_id=r.candidate_id,
     )
 
 
@@ -74,6 +76,8 @@ def upload_resume(
     user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
     file: Annotated[UploadFile, File(...)],
+    candidate_name: Annotated[Optional[str], Form()] = None,
+    candidate_id: Annotated[Optional[str], Form()] = None,
 ) -> RawResumePublic:
     """Upload a resume file and store metadata."""
     settings = get_settings()
@@ -88,6 +92,8 @@ def upload_resume(
         sha256=sha256,
         storage_path=str(target_path),
         uploaded_by_user_id=user.id,
+        candidate_name=candidate_name,
+        candidate_id=uuid.UUID(candidate_id) if candidate_id else None,
     )
     db.add(rr)
     db.commit()
@@ -99,7 +105,12 @@ def upload_resume(
 def list_resumes(
     _: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
+    candidate_id: Optional[str] = None,
 ) -> list[RawResumePublic]:
-    """List raw resume metadata."""
-    rows = db.query(RawResume).order_by(RawResume.uploaded_at.desc()).all()
+    """List raw resume metadata. Optionally filter by candidate_id."""
+    query = db.query(RawResume)
+    if candidate_id:
+        query = query.filter(RawResume.candidate_id == candidate_id)
+
+    rows = query.order_by(RawResume.uploaded_at.desc()).all()
     return [_resume_to_public(r) for r in rows]

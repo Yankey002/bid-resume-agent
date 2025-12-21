@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import get_settings
 from .db import engine
 from .models import Base, User
-from .routes import admin, auth, resumes
+from .routes import admin, auth, candidates, llm, resumes
 from .security import hash_password
 
 
@@ -40,6 +40,8 @@ def _create_app() -> FastAPI:
     app.include_router(auth.router)
     app.include_router(admin.router)
     app.include_router(resumes.router)
+    app.include_router(llm.router)
+    app.include_router(candidates.router)
 
     return app
 
@@ -54,6 +56,18 @@ def on_startup() -> None:
     settings.raw_resume_dir.mkdir(parents=True, exist_ok=True)
 
     Base.metadata.create_all(bind=engine)
+
+    # Simple migration for raw_resumes.candidate_name
+    from sqlalchemy import text
+
+    with engine.connect() as conn:
+        try:
+            conn.execute(
+                text("ALTER TABLE raw_resumes ADD COLUMN candidate_name VARCHAR(128)")
+            )
+            conn.commit()
+        except Exception:
+            pass
 
     from sqlalchemy.orm import Session
 
